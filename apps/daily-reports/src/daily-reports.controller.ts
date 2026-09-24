@@ -5,6 +5,7 @@ import { DailyReportsService } from './daily-reports.service';
 export class DailyReportsController {
   constructor(private readonly dailyReportsService: DailyReportsService) {}
 
+  
   @Get()
   getHello(): string {
     return this.dailyReportsService.getHello();
