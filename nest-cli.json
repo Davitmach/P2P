@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/P2P-bot/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/P2P-bot/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/P2P-bot",
+  "projects": {
+    "P2P-bot": {
+      "type": "application",
+      "root": "apps/P2P-bot",
+      "entryFile": "main",
+      "sourceRoot": "apps/P2P-bot/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/P2P-bot/tsconfig.app.json"
+      }
+    },
+    "daily-reports": {
+      "type": "application",
+      "root": "apps/daily-reports",
+      "entryFile": "main",
+      "sourceRoot": "apps/daily-reports/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/daily-reports/tsconfig.app.json"
+      }
+    },
+    "market": {
+      "type": "application",
+      "root": "apps/market",
+      "entryFile": "main",
+      "sourceRoot": "apps/market/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/market/tsconfig.app.json"
+      }
+    },
+    "merchant-ads": {
+      "type": "application",
+      "root": "apps/merchant-ads",
+      "entryFile": "main",
+      "sourceRoot": "apps/merchant-ads/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/merchant-ads/tsconfig.app.json"
+      }
+    },
+    "orders": {
+      "type": "application",
+      "root": "apps/orders",
+      "entryFile": "main",
+      "sourceRoot": "apps/orders/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/orders/tsconfig.app.json"
+      }
+    },
+    "price-reporter": {
+      "type": "application",
+      "root": "apps/price-reporter",
+      "entryFile": "main",
+      "sourceRoot": "apps/price-reporter/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/price-reporter/tsconfig.app.json"
+      }
+    }
+  }
+}
