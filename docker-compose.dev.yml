@@ -106,6 +106,8 @@ services:
     container_name: p2p-bot-dev
     env_file:
       - .env
+    ports:
+      - "3000:3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       CHOKIDAR_USEPOLLING: "true"
