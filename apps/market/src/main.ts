@@ -1,18 +1,29 @@
 import { NestFactory } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices';
+import {
+  MicroserviceOptions,
+  Transport,
+} from '@nestjs/microservices';
 import { MarketModule } from './market.module';
 
+
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(MarketModule, {
-    transport: Transport.RMQ,
-    options: {
-      urls: [process.env.RABBITMQ_URL!],
-      queue: 'market',
-      queueOptions: {
-        durable: true,
+  const app =
+    await NestFactory.createMicroservice<MicroserviceOptions>(
+      MarketModule,
+      {
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL!],
+          queue: 'market',
+          noAck: false,
+          prefetchCount: 1,
+          persistent: true,
+          queueOptions: {
+            durable: true,
+          },
+        },
       },
-    },
-  });
+    );
 
   await app.listen();
 }

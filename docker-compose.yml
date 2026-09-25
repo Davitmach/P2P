@@ -12,11 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
-        ]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -34,14 +30,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test:
-        [
-          "CMD",
-          "redis-cli",
-          "-a",
-          "$${REDIS_PASSWORD}",
-          "ping"
-        ]
+      test: ["CMD", "redis-cli", "-a", "$${REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -55,31 +44,83 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "127.0.0.1:15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test:
-        [
-          "CMD",
-          "rabbitmq-diagnostics",
-          "-q",
-          "ping"
-        ]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 20s
 
+  prisma-generate:
+    build:
+      context: .
+      dockerfile: Dockerfile.prisma
+    container_name: p2p-prisma-generate
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npx prisma generate
+    restart: "no"
+
+  prisma-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.prisma
+    container_name: p2p-prisma-migrate
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npx prisma migrate deploy
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  rabbitmq-init:
+    image: node:22.23.3-alpine3.24
+    container_name: p2p-rabbitmq-init
+    working_dir: /app
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_URL: ${RABBITMQ_URL_DOCKER}
+    volumes:
+      - ./rabbitmq-init.js:/app/rabbitmq-init.js:ro
+    command: >
+      sh -c "
+        npm install --no-save amqplib &&
+        node rabbitmq-init.js
+      "
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: "no"
+
   p2p-bot:
     build:
       context: .
       dockerfile: apps/P2P-bot/Dockerfile
+      target: runner
     container_name: p2p-bot
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: ${RABBITMQ_URL_DOCKER}
     ports:
       - "3000:3000"
     depends_on:
@@ -89,15 +130,27 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
+      prisma-migrate:
+        condition: service_completed_successfully
+      rabbitmq-init:
+        condition: service_completed_successfully
 
   market:
     build:
       context: .
       dockerfile: apps/market/Dockerfile
+      target: runner
     container_name: p2p-market
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: ${RABBITMQ_URL_DOCKER}
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,15 +158,27 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
+      prisma-migrate:
+        condition: service_completed_successfully
+      rabbitmq-init:
+        condition: service_completed_successfully
 
   orders:
     build:
       context: .
       dockerfile: apps/orders/Dockerfile
+      target: runner
     container_name: p2p-orders
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: ${RABBITMQ_URL_DOCKER}
     depends_on:
       postgres:
         condition: service_healthy
@@ -121,15 +186,27 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
+      prisma-migrate:
+        condition: service_completed_successfully
+      rabbitmq-init:
+        condition: service_completed_successfully
 
   merchant-ads:
     build:
       context: .
       dockerfile: apps/merchant-ads/Dockerfile
+      target: runner
     container_name: p2p-merchant-ads
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: ${RABBITMQ_URL_DOCKER}
     depends_on:
       postgres:
         condition: service_healthy
@@ -137,15 +214,27 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
+      prisma-migrate:
+        condition: service_completed_successfully
+      rabbitmq-init:
+        condition: service_completed_successfully
 
   price-reporter:
     build:
       context: .
       dockerfile: apps/price-reporter/Dockerfile
+      target: runner
     container_name: p2p-price-reporter
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: ${RABBITMQ_URL_DOCKER}
     depends_on:
       postgres:
         condition: service_healthy
@@ -153,15 +242,27 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
+      prisma-migrate:
+        condition: service_completed_successfully
+      rabbitmq-init:
+        condition: service_completed_successfully
 
   daily-reports:
     build:
       context: .
       dockerfile: apps/daily-reports/Dockerfile
+      target: runner
     container_name: p2p-daily-reports
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: ${RABBITMQ_URL_DOCKER}
     depends_on:
       postgres:
         condition: service_healthy
@@ -169,6 +270,12 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
+      prisma-migrate:
+        condition: service_completed_successfully
+      rabbitmq-init:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:

@@ -73,6 +73,15 @@
         "tsConfigPath": "apps/price-reporter/tsconfig.app.json"
       }
     },
+    "rabbitmq": {
+      "type": "library",
+      "root": "libs/rabbitmq",
+      "entryFile": "index",
+      "sourceRoot": "libs/rabbitmq/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rabbitmq/tsconfig.lib.json"
+      }
+    },
     "redis": {
       "type": "library",
       "root": "libs/redis",

@@ -4,13 +4,15 @@ import { MerchantAdsService } from './merchant-ads.service';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/database';
 import { RedisModule } from '@app/redis';
+import { RabbitmqModule } from '@app/rabbitmq';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     DatabaseModule,
-    RedisModule
+    RedisModule,
+    RabbitmqModule
   ],
   controllers: [MerchantAdsController],
   providers: [MerchantAdsService],
