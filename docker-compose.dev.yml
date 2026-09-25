@@ -15,17 +15,20 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
         ]
       interval: 5s
-      timeout: 5s
+      timeout: 3s
       retries: 10
-      start_period: 10s
+      start_period: 5s
 
   redis:
     image: redis:7-alpine
     container_name: p2p-redis-dev
     restart: unless-stopped
+    env_file:
+      - .env
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
     volumes:
@@ -35,6 +38,8 @@ services:
         [
           "CMD",
           "redis-cli",
+          "-a",
+          "$${REDIS_PASSWORD}",
           "ping"
         ]
       interval: 5s
@@ -62,14 +67,10 @@ services:
           "-q",
           "ping"
         ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 20s
-
-  # --------------------------------------------------
-  # Prisma generate
-  # --------------------------------------------------
+      start_period: 10s
 
   prisma-generate:
     build:
@@ -82,10 +83,6 @@ services:
       - .:/app
     command: npx prisma generate
     restart: "no"
-
-  # --------------------------------------------------
-  # Prisma migrations
-  # --------------------------------------------------
 
   prisma-migrate:
     build:
@@ -101,28 +98,22 @@ services:
         condition: service_healthy
     restart: "no"
 
-  # --------------------------------------------------
-  # P2P Bot
-  # --------------------------------------------------
-
   p2p-bot:
     build:
       context: .
       dockerfile: apps/P2P-bot/Dockerfile
       target: dev
     container_name: p2p-bot-dev
-    restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
-    ports:
-      - "3000:3000"
+      WATCHPACK_POLLING: "true"
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev:bot
     depends_on:
       postgres:
         condition: service_healthy
@@ -134,10 +125,6 @@ services:
         condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
-
-  # --------------------------------------------------
-  # Market
-  # --------------------------------------------------
 
   market:
     build:
@@ -145,16 +132,16 @@ services:
       dockerfile: apps/market/Dockerfile
       target: dev
     container_name: p2p-market-dev
-    restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
+      WATCHPACK_POLLING: "true"
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev:market
     depends_on:
       postgres:
         condition: service_healthy
@@ -166,10 +153,6 @@ services:
         condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
-
-  # --------------------------------------------------
-  # Orders
-  # --------------------------------------------------
 
   orders:
     build:
@@ -177,16 +160,16 @@ services:
       dockerfile: apps/orders/Dockerfile
       target: dev
     container_name: p2p-orders-dev
-    restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
+      WATCHPACK_POLLING: "true"
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev:orders
     depends_on:
       postgres:
         condition: service_healthy
@@ -199,26 +182,22 @@ services:
       prisma-migrate:
         condition: service_completed_successfully
 
-  # --------------------------------------------------
-  # Merchant Ads
-  # --------------------------------------------------
-
   merchant-ads:
     build:
       context: .
       dockerfile: apps/merchant-ads/Dockerfile
       target: dev
     container_name: p2p-merchant-ads-dev
-    restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
+      WATCHPACK_POLLING: "true"
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev:merchant-ads
     depends_on:
       postgres:
         condition: service_healthy
@@ -237,16 +216,16 @@ services:
       dockerfile: apps/price-reporter/Dockerfile
       target: dev
     container_name: p2p-price-reporter-dev
-    restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
+      WATCHPACK_POLLING: "true"
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev:price-reporter
     depends_on:
       postgres:
         condition: service_healthy
@@ -259,23 +238,22 @@ services:
       prisma-migrate:
         condition: service_completed_successfully
 
-
   daily-reports:
     build:
       context: .
       dockerfile: apps/daily-reports/Dockerfile
       target: dev
     container_name: p2p-daily-reports-dev
-    restart: unless-stopped
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "100"
+      WATCHPACK_POLLING: "true"
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev:daily-reports
     depends_on:
       postgres:
         condition: service_healthy
