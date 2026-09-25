@@ -11,7 +11,8 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-
+# Prisma generated client
+libs/database/src/generated/
 # OS
 .DS_Store
 

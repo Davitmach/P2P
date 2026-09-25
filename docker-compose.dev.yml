@@ -3,18 +3,14 @@ services:
     image: postgres:16.15-alpine3.23
     container_name: p2p-postgres-dev
     restart: unless-stopped
-
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-
     ports:
-      - "5432:5432"
-
+      - "5433:5432"
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
-
     healthcheck:
       test:
         [
@@ -26,18 +22,14 @@ services:
       retries: 10
       start_period: 10s
 
-
   redis:
     image: redis:7-alpine
     container_name: p2p-redis-dev
     restart: unless-stopped
-
     ports:
       - "6379:6379"
-
     volumes:
       - redis_data_dev:/data
-
     healthcheck:
       test:
         [
@@ -50,23 +42,18 @@ services:
       retries: 10
       start_period: 5s
 
-
   rabbitmq:
     image: rabbitmq:4.3.6-management
     container_name: p2p-rabbitmq-dev
     restart: unless-stopped
-
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-
     ports:
       - "5672:5672"
       - "15672:15672"
-
     volumes:
       - rabbitmq_data_dev:/var/lib/rabbitmq
-
     healthcheck:
       test:
         [
@@ -80,52 +67,62 @@ services:
       retries: 10
       start_period: 20s
 
+  # --------------------------------------------------
+  # Prisma generate
+  # --------------------------------------------------
+
+  prisma-generate:
+    build:
+      context: .
+      dockerfile: Dockerfile.prisma
+    container_name: p2p-prisma-generate-dev
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    command: npx prisma generate
+    restart: "no"
+
+  # --------------------------------------------------
+  # Prisma migrations
+  # --------------------------------------------------
 
   prisma-migrate:
     build:
       context: .
       dockerfile: Dockerfile.prisma
-
     container_name: p2p-prisma-migrate-dev
-
     env_file:
       - .env
-
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
-
     depends_on:
       postgres:
         condition: service_healthy
-
     restart: "no"
 
+  # --------------------------------------------------
+  # P2P Bot
+  # --------------------------------------------------
 
   p2p-bot:
     build:
       context: .
       dockerfile: apps/P2P-bot/Dockerfile
       target: dev
-
     container_name: p2p-bot-dev
     restart: unless-stopped
-
     env_file:
       - .env
-
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       CHOKIDAR_INTERVAL: "100"
-
     ports:
       - "3000:3000"
-
     volumes:
       - .:/app
       - /app/node_modules
-
     command: npm run start:dev:bot
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -133,32 +130,31 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
 
+  # --------------------------------------------------
+  # Market
+  # --------------------------------------------------
 
   market:
     build:
       context: .
       dockerfile: apps/market/Dockerfile
       target: dev
-
     container_name: p2p-market-dev
     restart: unless-stopped
-
     env_file:
       - .env
-
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       CHOKIDAR_INTERVAL: "100"
-
     volumes:
       - .:/app
       - /app/node_modules
-
     command: npm run start:dev:market
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -166,32 +162,31 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
 
+  # --------------------------------------------------
+  # Orders
+  # --------------------------------------------------
 
   orders:
     build:
       context: .
       dockerfile: apps/orders/Dockerfile
       target: dev
-
     container_name: p2p-orders-dev
     restart: unless-stopped
-
     env_file:
       - .env
-
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       CHOKIDAR_INTERVAL: "100"
-
     volumes:
       - .:/app
       - /app/node_modules
-
     command: npm run start:dev:orders
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -199,32 +194,31 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
 
+  # --------------------------------------------------
+  # Merchant Ads
+  # --------------------------------------------------
 
   merchant-ads:
     build:
       context: .
       dockerfile: apps/merchant-ads/Dockerfile
       target: dev
-
     container_name: p2p-merchant-ads-dev
     restart: unless-stopped
-
     env_file:
       - .env
-
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       CHOKIDAR_INTERVAL: "100"
-
     volumes:
       - .:/app
       - /app/node_modules
-
     command: npm run start:dev:merchant-ads
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -232,32 +226,27 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
-
 
   price-reporter:
     build:
       context: .
       dockerfile: apps/price-reporter/Dockerfile
       target: dev
-
     container_name: p2p-price-reporter-dev
     restart: unless-stopped
-
     env_file:
       - .env
-
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       CHOKIDAR_INTERVAL: "100"
-
     volumes:
       - .:/app
       - /app/node_modules
-
     command: npm run start:dev:price-reporter
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -265,6 +254,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
 
@@ -274,23 +265,17 @@ services:
       context: .
       dockerfile: apps/daily-reports/Dockerfile
       target: dev
-
     container_name: p2p-daily-reports-dev
     restart: unless-stopped
-
     env_file:
       - .env
-
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
       CHOKIDAR_INTERVAL: "100"
-
     volumes:
       - .:/app
       - /app/node_modules
-
     command: npm run start:dev:daily-reports
-
     depends_on:
       postgres:
         condition: service_healthy
@@ -298,9 +283,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      prisma-generate:
+        condition: service_completed_successfully
       prisma-migrate:
         condition: service_completed_successfully
-
 
 volumes:
   postgres_data_dev:

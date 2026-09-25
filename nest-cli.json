@@ -28,6 +28,15 @@
         "tsConfigPath": "apps/daily-reports/tsconfig.app.json"
       }
     },
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    },
     "market": {
       "type": "application",
       "root": "apps/market",
