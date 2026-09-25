@@ -22,6 +22,8 @@ async function bootstrap() {
             durable: true,
             arguments: {
               'x-queue-type': 'quorum',
+              'x-dead-letter-exchange': '',
+              'x-dead-letter-routing-key': 'orders.retry',
             },
           },
         },

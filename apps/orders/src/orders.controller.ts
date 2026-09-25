@@ -1,12 +1,29 @@
-import { Controller, Get } from '@nestjs/common';
-import { OrdersService } from './orders.service';
+import { Controller, Logger } from '@nestjs/common';
+import {
+  Ctx,
+  EventPattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 
 @Controller()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  private readonly logger = new Logger(OrdersController.name);
 
-  @Get()
-  getHello(): string {
-    return this.ordersService.getHello();
+  @EventPattern('orders.test')
+  async handleTestMessage(
+    @Payload() data: unknown,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+
+    this.logger.log(
+      `Received message: ${JSON.stringify(data)}`,
+    );
+
+    channel.ack(message);
+
+    this.logger.log('Message ACKed');
   }
 }
