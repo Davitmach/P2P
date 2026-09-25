@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,4 +5,49 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum OrderType {
+  BUY
+  SELL
+}
+
+model Prices {
+  id           String   @id @default(nanoid(7))
+  sellAvgPrice Decimal  @db.Decimal(20, 2)
+  sellMaxPrice Decimal  @db.Decimal(20, 2)
+  sellMinPrice Decimal  @db.Decimal(20, 2)
+  buyAvgPrice  Decimal  @db.Decimal(20, 2)
+  buyMaxPrice  Decimal  @db.Decimal(20, 2)
+  buyMinPrice  Decimal  @db.Decimal(20, 2)
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Orders {
+  id                  String    @id @default(nanoid(7))
+  orderNumber         String    @unique
+  type                OrderType
+  asset               String
+  fiat                String
+  fiatSymbol          String
+  amount              Decimal   @db.Decimal(20, 2)
+  totalPrice          Decimal   @db.Decimal(20, 2)
+  status              Int
+  orderCreateAt       DateTime
+  confirmPayEndAt     DateTime?
+  notifyPayEndAt      DateTime?
+  buyerNickname       String?
+  sellerNickname      String?
+  takerCommissionRate Decimal?  @db.Decimal(20, 2)
+  takerCommission     Decimal?  @db.Decimal(20, 2)
+  takerAmount         Decimal?  @db.Decimal(20, 2)
+  createdAt           DateTime  @default(now())
+  advNumber           String?
+
+  @@index([status])
+  @@index([type])
+  @@index([orderCreateAt])
+  @@index([advNumber])
 }
