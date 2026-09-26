@@ -18,12 +18,25 @@ export class OrdersController {
     const channel = context.getChannelRef();
     const message = context.getMessage();
 
-    this.logger.log(
-      `Received message: ${JSON.stringify(data)}`,
-    );
+    try {
+      this.logger.log(
+        `Received message: ${JSON.stringify(data)}`,
+      );
 
-    channel.ack(message);
 
-    this.logger.log('Message ACKed');
+      throw new Error('TEST RETRY ERROR');
+
+
+    } catch (error) {
+      this.logger.error(
+        `Processing failed: ${
+          error instanceof Error
+            ? error.message
+            : String(error)
+        }`,
+      );
+
+      channel.reject(message, false);
+    }
   }
 }

@@ -8,7 +8,6 @@ const queues = {
     dlq: 'orders.dlq',
     deliveryLimit: 3,
   },
-
   'merchant-ads': {
     type: 'quorum',
     dlq: 'merchant-ads.dlq',
@@ -29,11 +28,12 @@ async function main() {
       durable: true,
       arguments: {
         'x-queue-type': config.type,
-
         'x-delivery-limit': config.deliveryLimit,
-
         'x-dead-letter-exchange': '',
         'x-dead-letter-routing-key': config.dlq,
+        'x-delayed-retry-type': 'failed',
+        'x-delayed-retry-min': 5000,
+        'x-delayed-retry-max': 15000,
       },
     });
   }
