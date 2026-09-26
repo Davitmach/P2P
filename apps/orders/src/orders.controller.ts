@@ -5,10 +5,14 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
-
+import { RedisService } from '@app/redis';
 @Controller()
 export class OrdersController {
+  constructor(
+    private readonly redisService: RedisService,
+  ) {}
   private readonly logger = new Logger(OrdersController.name);
+
 
   @EventPattern('orders.test')
   async handleTestMessage(
@@ -21,10 +25,11 @@ export class OrdersController {
     try {
       this.logger.log(
         `Received message: ${JSON.stringify(data)}`,
+
       );
 
 
-      throw new Error('TEST RETRY ERROR');
+     
 
 
     } catch (error) {
