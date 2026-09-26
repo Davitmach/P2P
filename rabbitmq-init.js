@@ -5,14 +5,14 @@ const url = process.env.RABBITMQ_URL;
 const queues = {
   orders: {
     type: 'quorum',
-    retry: 'orders.retry',
     dlq: 'orders.dlq',
+    deliveryLimit: 3,
   },
 
   'merchant-ads': {
     type: 'quorum',
-    retry: 'merchant-ads.retry',
     dlq: 'merchant-ads.dlq',
+    deliveryLimit: 3,
   },
 };
 
@@ -21,26 +21,20 @@ async function main() {
   const channel = await connection.createChannel();
 
   for (const [queue, config] of Object.entries(queues)) {
+    await channel.assertQueue(config.dlq, {
+      durable: true,
+    });
+
     await channel.assertQueue(queue, {
       durable: true,
       arguments: {
         'x-queue-type': config.type,
-        'x-dead-letter-exchange': '',
-        'x-dead-letter-routing-key': config.retry,
-      },
-    });
 
-    await channel.assertQueue(config.retry, {
-      durable: true,
-      arguments: {
-        'x-message-ttl': 5000,
-        'x-dead-letter-exchange': '',
-        'x-dead-letter-routing-key': queue,
-      },
-    });
+        'x-delivery-limit': config.deliveryLimit,
 
-    await channel.assertQueue(config.dlq, {
-      durable: true,
+        'x-dead-letter-exchange': '',
+        'x-dead-letter-routing-key': config.dlq,
+      },
     });
   }
 

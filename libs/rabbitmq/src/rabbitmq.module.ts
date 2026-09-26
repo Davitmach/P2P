@@ -40,8 +40,9 @@ import { RABBITMQ_QUEUES } from './rabbitmq.config';
             durable: true,
             arguments: {
               'x-queue-type': 'quorum',
+              'x-delivery-limit': 3,
               'x-dead-letter-exchange': '',
-              'x-dead-letter-routing-key': RABBITMQ_QUEUES.ORDERS_RETRY,
+              'x-dead-letter-routing-key': RABBITMQ_QUEUES.ORDERS_DLQ,
             },
           },
         },
@@ -57,8 +58,9 @@ import { RABBITMQ_QUEUES } from './rabbitmq.config';
             durable: true,
             arguments: {
               'x-queue-type': 'quorum',
+              'x-delivery-limit': 3,
               'x-dead-letter-exchange': '',
-              'x-dead-letter-routing-key': RABBITMQ_QUEUES.MERCHANT_ADS_RETRY,
+              'x-dead-letter-routing-key': RABBITMQ_QUEUES.MERCHANT_ADS_DLQ,
             },
           },
         },
