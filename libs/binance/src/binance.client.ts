@@ -68,16 +68,6 @@ export class BinanceClient {
       timestamp,
     };
 
-    /**
-     * For Binance Agent SAPI:
-     *
-     * GET:
-     *   business params + auth params -> query string
-     *
-     * POST/PUT/DELETE:
-     *   auth params -> query string
-     *   business params -> JSON body
-     */
     const body =
       method === 'POST' ||
       method === 'PUT' ||
