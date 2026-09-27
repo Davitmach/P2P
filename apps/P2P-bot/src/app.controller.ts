@@ -1,13 +1,15 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_QUEUES } from '@app/rabbitmq';
 import { BinanceClient } from '@app/binance';
 @Controller()
 export class AppController {
+  private readonly logger = new Logger(Controller.name)
   constructor(
     @Inject(RABBITMQ_QUEUES.ORDERS)
     private readonly ordersClient: ClientProxy,
-    private readonly binance:BinanceClient
+    private readonly binance:BinanceClient,
+   
   ) {}
 
   @Get('test-rabbitmq')
@@ -28,14 +30,22 @@ export class AppController {
   }
   @Get('test-binance')
   async testBinance() {
-    return this.binance.searchAds({
-      publisherType: 'merchant',
-      fiat: 'AMD',
-      asset: 'USDT',
-      tradeType: 'BUY',
-      page: 1,
-      rows: 20,
-    });
-
+    try {
+      return await this.binance.searchAds({
+        publisherType: 'merchant',
+        fiat: 'AMD',
+        asset: 'USDT',
+        tradeType: 'INVALID' as any,
+        page: 122,
+        rows: 20,
+      });
+    } catch (error) {
+      this.logger.error(
+        'Binance searchAds request failed',
+        error instanceof Error ? error.stack : String(error),
+      );
+  
+     return {message:'error'}
+    }
   }
 }
