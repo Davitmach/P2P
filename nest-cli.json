@@ -19,6 +19,15 @@
         "tsConfigPath": "apps/P2P-bot/tsconfig.app.json"
       }
     },
+    "binance": {
+      "type": "library",
+      "root": "libs/binance",
+      "entryFile": "index",
+      "sourceRoot": "libs/binance/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/binance/tsconfig.lib.json"
+      }
+    },
     "daily-reports": {
       "type": "application",
       "root": "apps/daily-reports",

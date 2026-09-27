@@ -22,6 +22,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/binance": [
+        "libs/binance/src"
+      ],
+      "@app/binance/*": [
+        "libs/binance/src/*"
+      ],
       "@app/database": [
         "libs/database/src"
       ],

@@ -81,6 +81,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
+      "^@app/binance(|/.*)$": "<rootDir>/libs/binance/src/$1",
       "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1",
       "^@app/rabbitmq(|/.*)$": "<rootDir>/libs/rabbitmq/src/$1",
       "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1"

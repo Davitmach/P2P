@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/database';
 import { RedisModule } from '@app/redis';
 import { RabbitmqModule } from '@app/rabbitmq';
+import { BinanceModule } from '@app/binance';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -12,7 +13,8 @@ import { RabbitmqModule } from '@app/rabbitmq';
     }),
     DatabaseModule,
     RedisModule,
-    RabbitmqModule
+    RabbitmqModule,
+    BinanceModule
   ],
   controllers: [MerchantAdsController],
   providers: [MerchantAdsService],

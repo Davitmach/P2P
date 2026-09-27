@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RABBITMQ_QUEUES } from './rabbitmq.config';
-
+@Global()
 @Module({
   imports: [
     ClientsModule.register([
