@@ -1,12 +1,13 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_QUEUES } from '@app/rabbitmq';
-
+import { BinanceClient } from '@app/binance';
 @Controller()
 export class AppController {
   constructor(
     @Inject(RABBITMQ_QUEUES.ORDERS)
     private readonly ordersClient: ClientProxy,
+    private readonly binance:BinanceClient
   ) {}
 
   @Get('test-rabbitmq')
@@ -24,5 +25,17 @@ export class AppController {
       success: true,
       message,
     };
+  }
+  @Get('test-binance')
+  async testBinance() {
+    return this.binance.searchAds({
+      publisherType: 'merchant',
+      fiat: 'AMD',
+      asset: 'USDT',
+      tradeType: 'BUY',
+      page: 1,
+      rows: 20,
+    });
+
   }
 }
