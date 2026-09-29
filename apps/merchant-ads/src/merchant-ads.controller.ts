@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MerchantAdsService } from './merchant-ads.service';
 import { Interval } from '@nestjs/schedule';
 
