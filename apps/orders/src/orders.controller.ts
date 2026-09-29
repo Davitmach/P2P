@@ -29,9 +29,6 @@ export class OrdersController {
       );
 
 
-     
-
-
     } catch (error) {
       this.logger.error(
         `Processing failed: ${

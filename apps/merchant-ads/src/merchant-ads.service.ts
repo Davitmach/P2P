@@ -9,6 +9,7 @@ export class MerchantAdsService {
   private average(numbers: number[]) {
      return Number((numbers.reduce((sum, n) => sum + n, 0)/numbers.length).toFixed(2))
   }
+  
   async fetchAds() {
     try {
       const [buyAds, sellAds] = await Promise.all([
