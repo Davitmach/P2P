@@ -2,6 +2,7 @@ import { Controller, Get, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_QUEUES } from '@app/rabbitmq';
 import { BinanceClient } from '@app/binance';
+import { MerchantAdsRedisService } from '@app/redis';
 @Controller()
 export class AppController {
   private readonly logger = new Logger(Controller.name)
@@ -9,6 +10,8 @@ export class AppController {
     @Inject(RABBITMQ_QUEUES.ORDERS)
     private readonly ordersClient: ClientProxy,
     private readonly binance:BinanceClient,
+    private readonly redisMerchantAds:MerchantAdsRedisService
+
    
   ) {}
 
@@ -31,14 +34,7 @@ export class AppController {
   @Get('test-binance')
   async testBinance() {
     try {
-      return await this.binance.searchAds({
-        publisherType: 'merchant',
-        fiat: 'AMD',
-        asset: 'USDT',
-        tradeType: 'INVALID' as any,
-        page: 122,
-        rows: 20,
-      });
+      return await this.redisMerchantAds.getCurrentPrices()
     } catch (error) {
       this.logger.error(
         'Binance searchAds request failed',
@@ -48,4 +44,5 @@ export class AppController {
      return {message:'error'}
     }
   }
+
 }
