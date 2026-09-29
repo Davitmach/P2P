@@ -6,8 +6,8 @@ import { Interval } from '@nestjs/schedule';
 export class MerchantAdsController {
   constructor(private readonly merchantAdsService: MerchantAdsService) {}
 
-  @Interval(1000)
-  async de() {
-
+  @Interval(5000)
+  async fetchAds() {
+       return this.merchantAdsService.fetchAds()
   }
 }
