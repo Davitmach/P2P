@@ -6,6 +6,7 @@ import { DatabaseModule } from '@app/database';
 import { RedisModule } from '@app/redis';
 import { RabbitmqModule } from '@app/rabbitmq';
 import { BinanceModule } from '@app/binance';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,7 +15,8 @@ import { BinanceModule } from '@app/binance';
     DatabaseModule,
     RedisModule,
     RabbitmqModule,
-    BinanceModule
+    BinanceModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [PriceReporterController],
   providers: [PriceReporterService],
