@@ -20,9 +20,7 @@ export class MerchantAdsRedisService {
   }
   setCurrentPrices(props: setCurrentPrices) {
     try {
-        this.redis.set('current:prices',JSON.stringify(props))
-
-        this.logger.log('Current prices successfully saved to Redis');
+         return this.redis.set('current:prices',JSON.stringify(props))
     } catch (error) {
       this.logger.error(
         `Failed to set current prices`,

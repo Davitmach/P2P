@@ -1,4 +1,5 @@
 import { BinanceClient } from '@app/binance';
+import { PrismaService } from '@app/database';
 import { MerchantAdsRedisService } from '@app/redis';
 import { Controller, Injectable, Logger } from '@nestjs/common';
 
@@ -6,7 +7,8 @@ import { Controller, Injectable, Logger } from '@nestjs/common';
 export class MerchantAdsService {
   private readonly logger = new Logger(Controller.name);
   constructor(private readonly binance: BinanceClient,
-    private readonly redisMerchantAds:MerchantAdsRedisService
+    private readonly redisMerchantAds:MerchantAdsRedisService,
+    private readonly prismaService:PrismaService,
   ) {}
 
   
@@ -55,7 +57,7 @@ export class MerchantAdsService {
       this.logger.log('Максимум продаж', maxSellPrice);
       this.logger.log('Минимум продаж', minSellPrice);
       this.logger.log('Среднее продаж', averageSellPrice);
-      this.redisMerchantAds.setCurrentPrices({
+      const saveRedis =await this.redisMerchantAds.setCurrentPrices({
         buy:{
           avg:averageBuyPrice,
           min:minBuyPrice,
@@ -67,6 +69,24 @@ export class MerchantAdsService {
           max:maxSellPrice
         }
       })
+      if (saveRedis === 'OK') {
+        this.logger.log('Current prices successfully saved to Redis');
+      }
+      const createDb = await this.prismaService.prices.create({
+        data:{
+          buyAvgPrice:averageBuyPrice,
+          buyMaxPrice:maxBuyPrice,
+          buyMinPrice:minBuyPrice,
+          sellAvgPrice:averageSellPrice,
+          sellMaxPrice:maxSellPrice,
+          sellMinPrice:minSellPrice,
+
+        }
+      })
+      if(createDb) {
+        this.logger.log('Current prices successfully saved to PG');
+      }
+
     } catch (error) {
       this.logger.error(
         'Binance searchAds request failed',
