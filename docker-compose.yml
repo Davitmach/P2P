@@ -48,7 +48,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q check_running && rabbitmq-diagnostics -q check_port_listener 5672 && rabbitmq-diagnostics -q check_port_connectivity"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -105,6 +105,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+        restart: true
     restart: "no"
 
   p2p-bot:
@@ -130,6 +131,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+        restart: true
       prisma-generate:
         condition: service_completed_successfully
       prisma-migrate:
@@ -158,6 +160,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+        restart: true
       prisma-generate:
         condition: service_completed_successfully
       prisma-migrate:
@@ -186,6 +189,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+        restart: true
       prisma-generate:
         condition: service_completed_successfully
       prisma-migrate:
@@ -214,6 +218,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+        restart: true
       prisma-generate:
         condition: service_completed_successfully
       prisma-migrate:
@@ -242,6 +247,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+        restart: true
       prisma-generate:
         condition: service_completed_successfully
       prisma-migrate:
@@ -270,6 +276,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+        restart: true
       prisma-generate:
         condition: service_completed_successfully
       prisma-migrate:
