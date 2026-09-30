@@ -42,6 +42,8 @@ export class OrdersService {
               status: order.orderStatus,
             }
           })
+          
+          continue;
         }
 
         await this.prismaService.orders.create({
