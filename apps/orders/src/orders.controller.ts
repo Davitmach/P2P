@@ -6,10 +6,13 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 import { RedisService } from '@app/redis';
+import { OrdersService } from './orders.service';
 @Controller()
 export class OrdersController {
   constructor(
     private readonly redisService: RedisService,
+    private readonly ordersService: OrdersService,
+
   ) {}
   private readonly logger = new Logger(OrdersController.name);
 
@@ -23,6 +26,8 @@ export class OrdersController {
     const message = context.getMessage();
 
     try {
+      await this.ordersService.fetchOrders()
+
       this.logger.log(
         `Received message: ${JSON.stringify(data)}`,
 
