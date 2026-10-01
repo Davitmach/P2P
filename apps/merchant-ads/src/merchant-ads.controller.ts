@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MerchantAdsService } from './merchant-ads.service';
-import { Interval } from '@nestjs/schedule';
+import { Cron, CronExpression, Interval } from '@nestjs/schedule';
 
 @Controller()
 export class MerchantAdsController {
@@ -8,6 +8,10 @@ export class MerchantAdsController {
 
   @Interval(5000)
   async fetchAds() {
-       return this.merchantAdsService.fetchAds()
+       return this.merchantAdsService.savePrices('redis')
   }
+  @Cron(CronExpression.EVERY_MINUTE)
+  async savePrices() {
+    return this.merchantAdsService.savePrices('db')
+}
 }
