@@ -14,68 +14,50 @@ export class OrdersService {
   async fetchOrders() {
     try {
       const response = await this.binance.listOrders();
-      const orders = response.data
-      const orderNumbers = orders.map(order => order.orderNumber);
-
-      const existingOrders = await this.prismaService.orders.findMany({
-        where: {
-          orderNumber: {
-            in: orderNumbers
-          }
-        },
-        select: {
-          orderNumber: true,
-        },
-      });
-
-      const existingOrdersNumbers = new Set(
-        existingOrders.map(order => order.orderNumber)
-      )
-
-      for (const order of orders) {
-        if (existingOrdersNumbers.has(order.orderNumber)) {
-          await this.prismaService.orders.update({
-            where: {
-              orderNumber: order.orderNumber,
-            },
-            data: {
-              status: order.orderStatus,
-            }
-          })
-          
-          continue;
+      
+      for (const order of response.data) {
+        const data = {
+          orderNumber: order.orderNumber,
+          type: order.tradeType,
+          asset: order.asset,
+          fiat: order.fiat,
+          fiatSymbol: order.fiatSymbol,
+          amount: order.amount,
+          totalPrice: order.totalPrice,
+          status: order.orderStatus,
+          orderCreateAt: new Date(order.createTime),
+          confirmPayEndAt: order.confirmPayEndTime ?
+            new Date(order.confirmPayEndTime) :
+            null,
+          notifyPayEndAt: order.notifyPayEndTime ?
+            new Date(order.notifyPayEndTime) :
+            null,
+          buyerNickname: order.buyerNickname,
+          sellerNickname: order.sellerNickname,
+          takerCommissionRate: order.takerCommissionRate,
+          takerCommission: order.takerCommission,
+          takerAmount: order.takerAmount,
+          advNumber: order.advNo
         }
 
-        await this.prismaService.orders.create({
-          data: {
-            orderNumber: order.orderNumber,
-            type: order.tradeType,
-            asset: order.asset,
-            fiat: order.fiat,
-            fiatSymbol: order.fiatSymbol,
-            amount: order.amount,
-            totalPrice: order.totalPrice,
-            status: order.orderStatus,
-            orderCreateAt: new Date(order.createTime), 
-            confirmPayEndAt: order.confirmPayEndTime ? 
-              new Date(order.confirmPayEndTime) :
-              null,
-            notifyPayEndAt: order.notifyPayEndTime ?
-              new Date(order.notifyPayEndTime) :
-              null,
-            buyerNickname: order.buyerNickname,
-            sellerNickname: order.sellerNickname,
-            takerCommissionRate: order.takerCommissionRate,
-            takerCommission: order.takerCommission,
-            takerAmount: order.takerAmount,
-            advNumber: order.advNo
-          }
-        })
+        try {
+          await this.prismaService.orders.upsert({
+            where: { orderNumber: order.orderNumber },
+            create: data,
+            update: data,
+          });
+
+        } catch(error) {
+          this.logger.error(
+            `Failed to save order ${order.orderNumber}`,
+            error instanceof Error ? error.stack : String(error),
+          );
+        }
       }
 
     } catch (error) {
       this.logger.error(
-        'Binance searchAds request failed',
+        'Binance orders fetch failed',
         error instanceof Error ? error.stack : String(error),
       );
     }
