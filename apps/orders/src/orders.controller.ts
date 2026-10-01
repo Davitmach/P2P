@@ -1,4 +1,5 @@
 import { Controller, Logger } from '@nestjs/common';
+import { Interval } from '@nestjs/schedule';
 import {
   Ctx,
   EventPattern,
@@ -26,11 +27,10 @@ export class OrdersController {
     const message = context.getMessage();
 
     try {
-      await this.ordersService.fetchOrders()
+      
 
       this.logger.log(
         `Received message: ${JSON.stringify(data)}`,
-
       );
 
 
@@ -46,4 +46,10 @@ export class OrdersController {
       channel.reject(message, false);
     }
   }
+
+  @Interval(10000)
+  async fetchOrders() {
+    return this.ordersService.fetchOrders();
+  }
+  
 }
