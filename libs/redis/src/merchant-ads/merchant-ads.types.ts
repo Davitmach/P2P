@@ -10,3 +10,15 @@ export interface setCurrentPrices {
         avg:number
     }
 }
+export interface getCurrentPrices {
+    buy:{
+        max:number,
+        min:number,
+        avg:number
+    },
+    sell:{
+        max:number,
+        min:number,
+        avg:number
+    }
+}

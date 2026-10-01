@@ -7,6 +7,7 @@ import { RedisModule } from '@app/redis';
 import { RabbitmqModule } from '@app/rabbitmq';
 import { BinanceModule } from '@app/binance';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TelegramModule } from './telegram/telegram.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,6 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
   RabbitmqModule,
   BinanceModule,
   ScheduleModule.forRoot(),
+  TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,33 +1,33 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../redis.service';
-import { getCurrentPrices, setCurrentPrices } from './merchant-ads.types';
 
 @Injectable()
-export class MerchantAdsRedisService {
+export class TelegramUserIdService {
   private readonly logger = new Logger('MerchandAdsRedis');
   constructor(private readonly redis: RedisService) {}
-  async getCurrentPrices(): Promise<getCurrentPrices | null> {
+
+  setTelegramUserId(userId: string) {
     try {
-       const data =await  this.redis.get('current:prices')
-        if (!data) {
-          return null;
-        }
-        return JSON.parse(data) as getCurrentPrices;
+      return this.redis.set(`telegram:user`, userId);
     } catch (error) {
       this.logger.error(
-        `Failed to set current prices`,
+        `Failed to set telegram user id`,
         error instanceof Error ? error.stack : String(error),
       );
 
       throw error;
     }
   }
-  setCurrentPrices(props: setCurrentPrices) {
+  async getTelegramUserId(): Promise<string | null> {
     try {
-         return this.redis.set('current:prices',JSON.stringify(props))
+      const data = await this.redis.get(`telegram:user`);
+      if (!data) {
+        return null;
+      }
+      return data;
     } catch (error) {
       this.logger.error(
-        `Failed to set current prices`,
+        `Failed to get telegram user id`,
         error instanceof Error ? error.stack : String(error),
       );
 
