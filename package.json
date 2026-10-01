@@ -20,6 +20,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@grammyjs/conversations": "^2.1.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^12.0.1",
     "@nestjs/core": "^11.0.1",
