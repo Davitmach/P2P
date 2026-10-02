@@ -10,7 +10,7 @@ import {
   TradeTypeFilter,
 } from '../types/orders.types';
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 6;
 
 export function filterOrders(
   filter: OrderFilter,
