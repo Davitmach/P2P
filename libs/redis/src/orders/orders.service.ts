@@ -10,22 +10,16 @@ export class OrdersRedisService {
         private readonly redis: RedisService,
     ) { }
 
-    private buildOrderKey(orderNumber: string) {
-        return `order:${orderNumber}`
-    }
-
-    async setOrder(order: BinanceOrder): Promise<void> {
+    async setOrderInProcess(count: number): Promise<void> {
         try {
-            const key = this.buildOrderKey(order.orderNumber);
-
             await this.redis.set(
-                key,
-                JSON.stringify(order)
+                'current:orders-in-process',
+                String(count)
             );
 
         } catch (error) {
             this.logger.error(
-                `Failed to set an order ${order.orderNumber} into Redis`,
+                `Failed to set a number of orders in process into Redis`,
                 error instanceof Error ? error.stack : String(error)
             )
             throw error;
@@ -33,18 +27,18 @@ export class OrdersRedisService {
     }
 
     // * orderNumber is like "order:{orderNumber}"
-    async getOrder(orderNumber: string): Promise<BinanceOrder | null> {
+    async getOrder(): Promise<number | null> {
         try {
-            const key = this.buildOrderKey(orderNumber)
-            const data = await this.redis.get(key);
-            if(data === null) {
+            const data = await this.redis.get("current:orders-in-process");
+            if(!data) {
                 return null;
             }
-            return JSON.parse(data);
+
+            return Number(data);
 
         } catch (error) {
             this.logger.error(
-                `Failed to get order ${orderNumber} from Redis`,
+                `Failed to get a number of orders in process from Redis`,
                 error instanceof Error ? error.stack : String(error)
             );
 
