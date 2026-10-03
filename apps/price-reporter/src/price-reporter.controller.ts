@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { PriceReporterService } from './price-reporter.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Controller()
 export class PriceReporterController {
   constructor(private readonly priceReporterService: PriceReporterService) {}
 
-  @Get()
-  getHello(): string {
-    return this.priceReporterService.getHello();
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  priceReport() {
+    return this.priceReporterService.priceReport()
   }
 }

@@ -33,7 +33,7 @@ export class OrdersController {
         `Received message: ${JSON.stringify(data)}`,
       );
 
-
+      channel.ack(message)
     } catch (error) {
       this.logger.error(
         `Processing failed: ${

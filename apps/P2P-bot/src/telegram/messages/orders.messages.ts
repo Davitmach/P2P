@@ -61,7 +61,7 @@ import {
   
     const lines = [
       '━━━━━━━━━━━━━━━━━━',
-      '       <b>BLACK CAPITAL</b>',
+      '       <b>BORYA</b>',
       '      <b>P2P ORDER DETAILS</b>',
       '━━━━━━━━━━━━━━━━━━',
       '',
@@ -92,7 +92,7 @@ import {
       lines.push(`Срок подтверждения: ${formatTime(order.confirmPayEndTime)}`);
     }
   
-    lines.push('', '━━━━━━━━━━━━━━━━━━', '<i>BLACK CAPITAL · P2P TERMINAL</i>');
+    lines.push('', '━━━━━━━━━━━━━━━━━━', '<i>BORYA · P2P TERMINAL</i>');
   
     return lines.join('\n');
   }
