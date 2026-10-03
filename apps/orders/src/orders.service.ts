@@ -1,6 +1,9 @@
 import { BinanceClient } from '@app/binance';
 import { PrismaService } from '@app/database';
+import { OrdersRedisService } from '@app/redis/orders/orders.service';
 import { Controller, Logger, Injectable } from '@nestjs/common';
+
+const ORDERS_IN_PROCESS = [0, 1, 2, 3];
 
 @Injectable()
 export class OrdersService {
@@ -8,13 +11,14 @@ export class OrdersService {
 
   constructor(
     private readonly binance: BinanceClient,
-    private readonly prismaService: PrismaService
+    private readonly prismaService: PrismaService,
+    private readonly redisOrders: OrdersRedisService
   ) { }
 
   async fetchOrders() {
     try {
       const response = await this.binance.listOrders();
-      
+
       for (const order of response.data) {
         const data = {
           orderNumber: order.orderNumber,
@@ -47,7 +51,7 @@ export class OrdersService {
             update: data,
           });
 
-        } catch(error) {
+        } catch (error) {
           this.logger.error(
             `Failed to save order ${order.orderNumber}`,
             error instanceof Error ? error.stack : String(error),
@@ -63,5 +67,38 @@ export class OrdersService {
     }
   }
 
+  async countOrdersInProcess(): Promise<number> {
+    return this.prismaService.orders.count({
+      where: {
+        status: {
+          in: ORDERS_IN_PROCESS,
+        }
+      }
+    });
+  }
 
+  async updateOrdersInProcess(): Promise<void> {
+    const count = await this.countOrdersInProcess();
+
+    try {
+      await this.redisOrders.setOrdersInProcess(count);
+    } catch (error) {
+      this.logger.warn(`Count ${count} was not saved to Redis, continuing`)
+    }
+  }
+
+  async getCountOrders(): Promise<number> {
+    try {
+      const cached = await this.redisOrders.getOrdersInProcess();
+
+      if (cached !== null) {
+        return cached;
+      }
+
+    } catch (error) {
+      this.logger.warn('Redis unavailable, falling back to Postgres');
+    }
+
+    return this.countOrdersInProcess();
+  }
 }

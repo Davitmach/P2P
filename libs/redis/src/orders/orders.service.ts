@@ -10,7 +10,9 @@ export class OrdersRedisService {
         private readonly redis: RedisService,
     ) { }
 
-    async setOrderInProcess(count: number): Promise<void> {
+    
+
+    async setOrdersInProcess(count: number): Promise<void> {
         try {
             await this.redis.set(
                 'current:orders-in-process',
@@ -26,8 +28,7 @@ export class OrdersRedisService {
         }
     }
 
-    // * orderNumber is like "order:{orderNumber}"
-    async getOrder(): Promise<number | null> {
+    async getOrdersInProcess(): Promise<number | null> {
         try {
             const data = await this.redis.get("current:orders-in-process");
             if(!data) {
