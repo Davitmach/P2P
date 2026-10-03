@@ -6,7 +6,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 export class PriceReporterController {
   constructor(private readonly priceReporterService: PriceReporterService) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   priceReport() {
     return this.priceReporterService.priceReport()
   }
