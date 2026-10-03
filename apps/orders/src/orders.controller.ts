@@ -47,7 +47,7 @@ export class OrdersController {
     }
   }
 
-  @Interval(1000)
+  @Interval(10000)
   async fetchOrders() {
     return this.ordersService.fetchOrders();
   }
