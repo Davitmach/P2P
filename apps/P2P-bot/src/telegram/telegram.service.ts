@@ -10,8 +10,9 @@ import { TelegramUserIdService } from '@app/redis';
 
 import { bot } from './telegram.bot';
 import { SessionData } from './types/session.types';
-import { mainComposer } from './composer';
+import { createMainComposer } from './composer';
 import { createTelegramMiddleware } from './middlewares/telegram.middleware';
+import { OrdersService } from './orders.service';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -19,6 +20,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly telegramUserIdService: TelegramUserIdService,
+    private readonly ordersService: OrdersService,
   ) {}
 
   onModuleInit(): void {
@@ -32,7 +34,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
 
     bot.use(createTelegramMiddleware(this.telegramUserIdService));
 
-    bot.use(mainComposer);
+    bot.use(createMainComposer(this.ordersService));
 
     void bot
       .start({

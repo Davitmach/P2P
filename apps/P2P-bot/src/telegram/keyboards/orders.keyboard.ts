@@ -1,11 +1,14 @@
 import { InlineKeyboard } from 'grammy';
-import {
+
+import type {
   AmountSort,
   OrderFilter,
   P2POrder,
+  SortBy,
   TimeSort,
   TradeTypeFilter,
 } from '../types/orders.types';
+
 import { formatOrderButton } from '../messages/orders.messages';
 
 const statusLabels: Record<OrderFilter, string> = {
@@ -25,22 +28,22 @@ export function ordersKeyboard(
   timeSort: TimeSort,
   amountSort: AmountSort,
   tradeType: TradeTypeFilter,
+  sortBy: SortBy = 'time',
 ): InlineKeyboard {
   const keyboard = new InlineKeyboard();
 
-
   keyboard
     .text(
-      timeSort === 'newest' ? '📅 Новые' : '📅 Старые',
-      `ord:t:${filter}:${timeSort}:${amountSort}:${tradeType}`,
+      `${timeSort === 'newest' ? '📅 Новые' : '📅 Старые'}`,
+      `ord:t:${filter}:${timeSort}:${amountSort}:${tradeType}:${sortBy}`,
     )
     .text(
       `📊 ${statusLabels[filter]}`,
-      `ord:s:${filter}:${timeSort}:${amountSort}:${tradeType}`,
+      `ord:s:${filter}:${timeSort}:${amountSort}:${tradeType}:${sortBy}`,
     )
     .text(
-      amountSort === 'desc' ? '💰 Сумма ↓' : '💰 Сумма ↑',
-      `ord:a:${filter}:${timeSort}:${amountSort}:${tradeType}`,
+      `${amountSort === 'desc' ? '💰 Сумма ↓' : '💰 Сумма ↑'}`,
+      `ord:a:${filter}:${timeSort}:${amountSort}:${tradeType}:${sortBy}`,
     )
     .text(
       tradeType === 'all'
@@ -48,33 +51,28 @@ export function ordersKeyboard(
         : tradeType === 'BUY'
           ? '🟢 Покупка'
           : '🔴 Продажа',
-      `ord:y:${filter}:${timeSort}:${amountSort}:${tradeType}`,
+      `ord:y:${filter}:${timeSort}:${amountSort}:${tradeType}:${sortBy}`,
     )
     .row();
 
-
   for (const order of orders) {
     keyboard
-      .text(
-        formatOrderButton(order),
-        `ord:d:${order.orderNumber}`,
-      )
+      .text(formatOrderButton(order), `ord:d:${order.orderNumber}`)
       .row();
   }
-
 
   keyboard
     .text(
       '← Назад',
       page > 0
-        ? `ord:p:${page - 1}:${filter}:${timeSort}:${amountSort}:${tradeType}`
+        ? `ord:p:${page - 1}:${filter}:${timeSort}:${amountSort}:${tradeType}:${sortBy}`
         : 'ord:n',
     )
     .text(`${page + 1} / ${totalPages}`, 'ord:n')
     .text(
       'Вперёд →',
       page + 1 < totalPages
-        ? `ord:p:${page + 1}:${filter}:${timeSort}:${amountSort}:${tradeType}`
+        ? `ord:p:${page + 1}:${filter}:${timeSort}:${amountSort}:${tradeType}:${sortBy}`
         : 'ord:n',
     );
 
