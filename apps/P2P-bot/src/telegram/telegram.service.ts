@@ -13,6 +13,8 @@ import { SessionData } from './types/session.types';
 import { createMainComposer } from './composer';
 import { createTelegramMiddleware } from './middlewares/telegram.middleware';
 import { OrdersService } from './orders.service';
+import { RatesService } from './rates.service';
+import { setCommands } from './set-command';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -21,21 +23,29 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly telegramUserIdService: TelegramUserIdService,
     private readonly ordersService: OrdersService,
+    private readonly ratesService:RatesService
   ) {}
 
-  onModuleInit(): void {
+  async onModuleInit(): Promise<void> {
     bot.use(
       session({
         initial: (): SessionData => ({}),
       }),
     );
-
+  
     bot.use(conversations());
-
+  
     bot.use(createTelegramMiddleware(this.telegramUserIdService));
-
-    bot.use(createMainComposer(this.ordersService));
-
+  
+    bot.use(
+      createMainComposer(
+        this.ordersService,
+        this.ratesService,
+      ),
+    );
+  
+    await setCommands(bot.api);
+  
     void bot
       .start({
         onStart: (botInfo) => {
