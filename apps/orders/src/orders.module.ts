@@ -7,6 +7,7 @@ import { RedisModule } from '@app/redis';
 import { RabbitmqModule } from '@app/rabbitmq';
 import { BinanceModule } from '@app/binance';
 import { ScheduleModule } from '@nestjs/schedule';
+import { OrdersRedisService } from '@app/redis/orders/orders.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,6 +20,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
   ],
   controllers: [OrdersController],
-  providers: [OrdersService],
+  providers: [OrdersService, OrdersRedisService],
 })
 export class OrdersModule {}

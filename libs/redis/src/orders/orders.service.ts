@@ -8,9 +8,7 @@ export class OrdersRedisService {
 
     constructor(
         private readonly redis: RedisService,
-    ) { }
-
-    
+    ) {}
 
     async setOrdersInProcess(count: number): Promise<void> {
         try {

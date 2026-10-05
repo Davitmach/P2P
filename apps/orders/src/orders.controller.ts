@@ -14,7 +14,7 @@ export class OrdersController {
     private readonly redisService: RedisService,
     private readonly ordersService: OrdersService,
 
-  ) {}
+  ) { }
   private readonly logger = new Logger(OrdersController.name);
 
 
@@ -27,19 +27,17 @@ export class OrdersController {
     const message = context.getMessage();
 
     try {
-      
-
       this.logger.log(
         `Received message: ${JSON.stringify(data)}`,
       );
 
-      channel.ack(message)
+      channel.ack(message);
+
     } catch (error) {
       this.logger.error(
-        `Processing failed: ${
-          error instanceof Error
-            ? error.message
-            : String(error)
+        `Processing failed: ${error instanceof Error
+          ? error.message
+          : String(error)
         }`,
       );
 
@@ -49,7 +47,6 @@ export class OrdersController {
 
   @Interval(10000)
   async fetchOrders() {
-    return this.ordersService.fetchOrders();
+    return await this.ordersService.fetchOrders();
   }
-  
 }
