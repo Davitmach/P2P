@@ -5,6 +5,7 @@ import { TelegramService } from './telegram.service';
 import { PriceNotificationService } from './price-notification.service';
 import { OrdersService } from './orders.service';
 import { DatabaseModule } from '@app/database';
+import { RatesService } from './rates.service';
 
 @Module({
   imports: [DatabaseModule],
@@ -13,6 +14,7 @@ import { DatabaseModule } from '@app/database';
     TelegramService,
     PriceNotificationService,
     OrdersService,
+    RatesService
   ],
   exports: [TelegramService],
 })
