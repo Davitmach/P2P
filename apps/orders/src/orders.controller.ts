@@ -3,6 +3,7 @@ import { Interval } from '@nestjs/schedule';
 import {
   Ctx,
   EventPattern,
+  MessagePattern,
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
@@ -48,5 +49,16 @@ export class OrdersController {
   @Interval(10000)
   async fetchOrders() {
     return await this.ordersService.fetchOrders();
+  }
+
+  @Interval(10000)
+  async syncOrdersInProcess() {
+    await this.ordersService.updateOrdersInProcess();
+  }
+
+  // ! review MessagePattern message inside
+  @MessagePattern('orders.in-process')
+  async getOrdersInProcess() {
+    return this.ordersService.getCountOrders();
   }
 }
