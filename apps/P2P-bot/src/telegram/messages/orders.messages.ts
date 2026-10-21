@@ -28,6 +28,7 @@ export function formatOrderDetails(order: P2POrder): string {
     7: '⌛ Истёк',
   };
 
+
   const typeLabel = order.type === 'BUY' ? '🟢 Покупка' : '🔴 Продажа';
 
   return [
@@ -41,6 +42,7 @@ export function formatOrderDetails(order: P2POrder): string {
     `💵 Количество: <b>${order.amount.toString()} ${order.asset}</b>`,
     `🏦 Фиат: <b>${order.fiat}</b>`,
     `💳 Сумма: <b>${order.totalPrice.toString()} ${order.fiatSymbol}</b>`,
+    `💹 Курс: <b>${Number(order.totalPrice.div(order.amount).toString()).toFixed(2)}</b>`,
     '',
     '📊 <b>ИНФОРМАЦИЯ</b>',
     `Статус: ${statusMap[order.status] ?? `❔ ${order.status}`}`,

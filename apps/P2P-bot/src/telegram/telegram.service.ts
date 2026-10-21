@@ -44,7 +44,15 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
       ),
     );
   
-    await setCommands(bot.api);
+    try {
+      await setCommands(bot.api);
+      this.logger.log('Telegram commands registered');
+    } catch (error: unknown) {
+      this.logger.error(
+        'Failed to register Telegram commands',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
   
     void bot
       .start({
