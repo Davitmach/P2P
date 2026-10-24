@@ -6,6 +6,7 @@ import { PriceNotificationService } from './price-notification.service';
 import { OrdersService } from './orders.service';
 import { DatabaseModule } from '@app/database';
 import { RatesService } from './rates.service';
+import { OrdersRedisService } from '@app/redis/orders/orders.service';
 
 @Module({
   imports: [DatabaseModule],
@@ -14,7 +15,8 @@ import { RatesService } from './rates.service';
     TelegramService,
     PriceNotificationService,
     OrdersService,
-    RatesService
+    RatesService,
+    OrdersRedisService
   ],
   exports: [TelegramService],
 })

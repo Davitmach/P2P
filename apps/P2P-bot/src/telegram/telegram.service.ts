@@ -15,6 +15,7 @@ import { createTelegramMiddleware } from './middlewares/telegram.middleware';
 import { OrdersService } from './orders.service';
 import { RatesService } from './rates.service';
 import { setCommands } from './set-command';
+import { OrdersRedisService } from '@app/redis/orders/orders.service';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -23,7 +24,8 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly telegramUserIdService: TelegramUserIdService,
     private readonly ordersService: OrdersService,
-    private readonly ratesService:RatesService
+    private readonly ratesService:RatesService,
+    private readonly inProcessOrders:OrdersRedisService
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -41,6 +43,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
       createMainComposer(
         this.ordersService,
         this.ratesService,
+        this.inProcessOrders
       ),
     );
   

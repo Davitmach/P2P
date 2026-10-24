@@ -1,7 +1,18 @@
 import { Composer } from 'grammy';
-import { BotContext } from '../types/session.types';
-import { startCommand } from '../commands/start.command';
+import type { BotContext } from '../types/session.types';
 
-export const startComposer = new Composer<BotContext>();
+import { createStartCommand } from '../commands/start.command';
+import { OrdersRedisService } from '@app/redis/orders/orders.service';
 
-startComposer.command('start', startCommand);
+export function createStartComposer(
+  ordersRedisService: OrdersRedisService,
+) {
+  const composer = new Composer<BotContext>();
+
+  composer.command(
+    'start',
+    createStartCommand(ordersRedisService),
+  );
+
+  return composer;
+}
