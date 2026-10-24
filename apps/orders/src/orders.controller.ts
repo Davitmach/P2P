@@ -56,7 +56,7 @@ export class OrdersController {
     await this.ordersService.updateOrdersInProcess();
   }
 
-  // ! review MessagePattern message inside
+  
   @MessagePattern('orders.in-process')
   async getOrdersInProcess() {
     return this.ordersService.getCountOrders();
